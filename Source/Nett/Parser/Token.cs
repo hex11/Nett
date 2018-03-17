@@ -22,17 +22,22 @@
         RCurly,
 
         Integer,
+        HexInteger,
+        OctalInteger,
+        BinaryInteger,
         Float,
         Bool,
         String,
         LiteralString,
         MultilineString,
         MultilineLiteralString,
+        Date,
+        Time,
         DateTime,
         Timespan,
     }
 
-    [DebuggerDisplay("{value}")]
+    [DebuggerDisplay("{value}:{type}")]
     internal struct Token
     {
 #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
@@ -66,5 +71,8 @@
         public static Token NewLine(int line, int col) => new Token(TokenType.NewLine, "<NewLine>") { line = line, col = col };
 
         public static Token EndOfFile(int line, int col) => new Token(TokenType.Eof, "<EndOfFile>") { line = line, col = col };
+
+        public override string ToString()
+            => $"{this.value}:{this.type}";
     }
 }
