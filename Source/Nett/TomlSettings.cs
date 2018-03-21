@@ -31,6 +31,8 @@
         {
         }
 
+        public bool AllowNonstandard { get; internal set; } = false;
+
         public static TomlSettings Create() => Create(_ => { });
 
         public static TomlSettings Create(Action<ITomlSettingsBuilder> cfg)

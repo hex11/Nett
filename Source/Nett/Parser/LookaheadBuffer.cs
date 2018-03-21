@@ -5,7 +5,7 @@
 
     [DebuggerDisplay("{DebuggerDisplay}")]
     internal abstract class LookaheadBuffer<T>
-        where T : struct
+        where T : struct, IEquatable<T> // avoid to use `object.Equals(object, object)`, which causes boxing.
     {
         private readonly Func<T?> read;
         private T[] buffer;
@@ -83,7 +83,7 @@
 
         public bool TryExpect(T expected)
         {
-            return !this.EndInternal && object.Equals(this.Peek(), expected);
+            return !this.EndInternal && this.Peek().Equals(expected);
         }
 
         public bool TryExpectAt(int la, T expected)
@@ -91,7 +91,7 @@
             if (this.ItemsAvailable < la + 1) { return false; }
 
             var laVal = this.PeekAt(la);
-            return object.Equals(laVal, expected);
+            return laVal.Equals(expected);
         }
 
         private void GrowBuffer(int minLength)

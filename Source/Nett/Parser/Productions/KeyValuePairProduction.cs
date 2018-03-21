@@ -8,7 +8,10 @@
         {
             var key = KeyProduction.Apply(tokens);
 
-            tokens.ExpectAndConsume(TokenType.Assign);
+            if (!(root.Settings.AllowNonstandard && tokens.TryExpectAndConsume(TokenType.Colon)))
+            {
+                tokens.ExpectAndConsume(TokenType.Assign);
+            }
 
             var inlineTableArray = InlineTableArrayProduction.TryApply(root, tokens);
             if (inlineTableArray != null)

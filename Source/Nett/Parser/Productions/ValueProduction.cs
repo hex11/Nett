@@ -106,8 +106,10 @@
             var s = t.value;
 
             // Trim newline following the """ tag immediate
-            if (s.Length > 0 && s[0] == '\r') { s = s.Substring(1); }
-            if (s.Length > 0 && s[0] == '\n') { s = s.Substring(1); }
+            int pos = 0;
+            if (s.Length > pos && s[pos] == '\r') { pos++; }
+            if (s.Length > pos && s[pos] == '\n') { pos++; }
+            if (pos > 0) { s = s.Substring(pos); }
 
             s = ReplaceDelimeterBackslash(s);
 

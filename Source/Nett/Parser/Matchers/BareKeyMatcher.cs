@@ -36,6 +36,6 @@
 
         private static bool TokenDone(CharBuffer cs) => cs.TokenDone() || NextTokenIsValidBareKeySuccessor(cs);
 
-        private static bool NextTokenIsValidBareKeySuccessor(CharBuffer cs) => cs.Peek() == '=' || cs.Peek() == '.';
+        private static bool NextTokenIsValidBareKeySuccessor(CharBuffer cs) => cs.Peek() == '=' || cs.Peek() == '.' || cs.Peek() == ':';
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace Nett.Parser
 {
+    using System;
     using System.Diagnostics;
     using System.Text;
 
@@ -15,6 +16,8 @@
         Key,
         Assign,
         Comma,
+
+        Colon,
 
         LBrac,
         RBrac,
@@ -33,7 +36,7 @@
     }
 
     [DebuggerDisplay("{value}")]
-    internal struct Token
+    internal struct Token : IEquatable<Token>
     {
 #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
         public int col;
@@ -66,5 +69,10 @@
         public static Token NewLine(int line, int col) => new Token(TokenType.NewLine, "<NewLine>") { line = line, col = col };
 
         public static Token EndOfFile(int line, int col) => new Token(TokenType.Eof, "<EndOfFile>") { line = line, col = col };
+
+        public bool Equals(Token other)
+        {
+            return this.type == other.type && this.value == other.value;
+        }
     }
 }

@@ -36,6 +36,21 @@
             var root = new TomlTable.RootTable(this.settings) { IsDefined = true };
             TomlTable current = root;
 
+            if (this.settings.AllowNonstandard)
+            {
+                var inlineTable = InlineTableProduction.TryApply(root, this.Tokens);
+                if (inlineTable != null)
+                {
+                    this.Tokens.ConsumeAllNewlines();
+                    if (!this.Tokens.End)
+                    {
+                        throw new Exception();
+                    }
+
+                    return inlineTable;
+                }
+            }
+
             while (!this.Tokens.End)
             {
                 current = ExpressionsProduction.TryApply(current, root, this.Tokens);

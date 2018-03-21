@@ -35,6 +35,8 @@
             ITomlSettingsBuilder ConfigureType<T>(Action<ITypeSettingsBuilder<T>> ct);
 
             ITableKeyMappingBuilder MapTableKey(string key);
+
+            ITomlSettingsBuilder AllowNonstandard(bool allow);
         }
 
         internal sealed class ConversionSettingsBuilder<TCustom, TToml> : IConversionSettingsBuilder<TCustom, TToml>
@@ -130,6 +132,12 @@
 
             public ITableKeyMappingBuilder MapTableKey(string key) =>
                 new TableKeyMappingBuilder(this.settings, this, key);
+
+            public ITomlSettingsBuilder AllowNonstandard(bool allow)
+            {
+                this.settings.AllowNonstandard = allow;
+                return this;
+            }
 
             public void SetupConverters()
             {
