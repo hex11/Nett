@@ -7,7 +7,7 @@
         public static IList<TomlComment> TryParseAppendExpressionComments(Token lastExpressionToken, TokenBuffer tokens)
         {
             var comments = new List<TomlComment>();
-            while (tokens.TryExpect(TokenType.Comment) && tokens.Peek().line == lastExpressionToken.line)
+            while (tokens.TryExpect(TokenType.Comment))
             {
                 comments.Add(new TomlComment(tokens.Consume().value, CommentLocation.Append));
             }
@@ -29,7 +29,7 @@
             return comments;
         }
 
-        public static IList<TomlComment> TryParsePreExpressionCommenst(TokenBuffer tokens)
+        public static IList<TomlComment> TryParsePreExpressionComments(TokenBuffer tokens)
         {
             var comments = new List<TomlComment>();
             while (tokens.TryExpect(TokenType.Comment))

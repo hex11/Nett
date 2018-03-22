@@ -16,7 +16,7 @@
         {
             tokens.ConsumeAllNewlines();
 
-            var preComments = CommentProduction.TryParsePreExpressionCommenst(tokens);
+            var preComments = CommentProduction.TryParsePreExpressionComments(tokens);
             var expressionToken = tokens.Peek();
 
             tokens.ConsumeAllNewlines();

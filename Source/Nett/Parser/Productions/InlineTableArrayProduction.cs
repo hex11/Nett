@@ -4,11 +4,10 @@
     {
         public static TomlTableArray TryApply(ITomlRoot root, TokenBuffer tokens)
         {
-            var ictx = tokens.GetImaginaryContext();
-
-            if (!ictx.TryExpectAndConsume(TokenType.LBrac)) { return null; }
+            int pos = 0;
+            if (!tokens.TryExpectAt(pos++, TokenType.LBrac)) { return null; }
             ictx.ConsumeAllNewlinesAndComments();
-            if (!ictx.TryExpect(TokenType.LCurly)) { return null; }
+            if (!tokens.TryExpectAt(pos++, TokenType.LCurly)) { return null; }
 
             return Apply(root, tokens);
         }
@@ -17,47 +16,25 @@
         {
             tokens.ExpectAndConsume(TokenType.LBrac);
             tokens.ConsumeAllNewlines();
-
-            var prep = CommentProduction.TryParseComments(tokens, CommentLocation.Prepend);
+            var preComments = CommentProduction.TryParsePreExpressionComments(tokens);
 
             var arr = new TomlTableArray(root);
-            while (true)
-            {
-                var tbl = InlineTableProduction.TryApply(root, tokens);
-                if (tbl == null)
-                {
-                    break;
-                }
-
-                if (prep != null)
-                {
-                    tbl.AddComments(prep);
-                    prep = null;
-                }
-
+            arr.AddComments(preComments);
+            TomlTable tbl = null;
+            while ((tbl = InlineTableProduction.TryApply(root, tokens)) != null) {
                 arr.Add(tbl);
-
-                if (tokens.TryExpect(TokenType.Comma))
-                {
-                    tokens.Consume();
+                var exprToken = tokens.Peek();
+                if (root.Settings.AllowNonstandard)
+                    tokens.ConsumeAllNewlines();
+                var haveComma = tokens.TryExpectAndConsume(TokenType.Comma);
+                if (root.Settings.AllowNonstandard) {
                     tokens.ConsumeAllNewlines();
                     tbl.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
+                } else {
+                    tbl.AddComments(CommentProduction.TryParseAppendExpressionComments(exprToken, tokens));
                 }
-                else
-                {
+                if (!haveComma)
                     break;
-                }
-            }
-
-            tokens.ConsumeAllNewlines();
-
-            if (arr.Count > 0)
-            {
-                arr.Last().AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
-            }
-            else
-            {
-                arr.AddComments(prep);
             }
 
             tokens.ExpectAndConsume(TokenType.RBrac);

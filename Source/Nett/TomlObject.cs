@@ -52,7 +52,7 @@
 
         public TomlObject AddComments(IEnumerable<TomlComment> comments)
         {
-            this.comments.AddRange(comments);
+            if (comments != null) { this.comments.AddRange(comments); }
             return this;
         }
 

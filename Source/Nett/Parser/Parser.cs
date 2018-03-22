@@ -38,6 +38,7 @@
 
             if (this.settings.AllowNonstandard)
             {
+                this.Tokens.ConsumeAllNewlines();
                 var inlineTable = InlineTableProduction.TryApply(root, this.Tokens);
                 if (inlineTable != null)
                 {

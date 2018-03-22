@@ -7,28 +7,39 @@
             TomlTable inlineTable = new TomlTable(root, TomlTable.TableTypes.Inline);
 
             tokens.ExpectAndConsume(TokenType.LCurly);
-            if (root.Settings.AllowNonstandard) { tokens.ConsumeAllNewlines(); }
+            if (root.Settings.AllowNonstandard) {
+                tokens.ConsumeAllNewlines();
+                inlineTable.AddComments(CommentProduction.TryParsePreExpressionComments(tokens));
 
-            if (!tokens.TryExpect(TokenType.RCurly))
-            {
-                var kvp = KeyValuePairProduction.Apply(root, tokens);
-                inlineTable.AddRow(kvp.Item1, kvp.Item2);
-
-                while (tokens.TryExpect(TokenType.Comma))
-                {
-                    tokens.Consume();
-                    if (root.Settings.AllowNonstandard)
-                    {
-                        tokens.ConsumeAllNewlines();
-                        if (tokens.TryExpect(TokenType.RCurly)) { break; }
+                while (!tokens.TryExpect(TokenType.RCurly)) {
+                    var preComments = CommentProduction.TryParsePreExpressionComments(tokens);
+                    var exprToken = tokens.Peek();
+                    var kvp = KeyValuePairProduction.Apply(root, tokens);
+                    var row = inlineTable.AddRow(kvp.Item1, kvp.Item2);
+                    row.AddComments(preComments);
+                    row.AddComments(CommentProduction.TryParseAppendExpressionComments(exprToken, tokens));
+                    if (tokens.TryExpect(TokenType.Comma) || tokens.TryExpect(TokenType.NewLine)) {
+                        var t = tokens.Consume().type;
+                        if (t == TokenType.NewLine) {
+                            tokens.ConsumeAllNewlines();
+                        }
+                        row.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
+                        // newlines is consumed by TryParseComments()
+                    } else {
+                        break;
                     }
-
-                    kvp = KeyValuePairProduction.Apply(root, tokens);
-                    inlineTable.AddRow(kvp.Item1, kvp.Item2);
+                }
+                tokens.ConsumeAllNewlines();
+            } else {
+                while (!tokens.TryExpect(TokenType.RCurly)) {
+                    var exprToken = tokens.Peek();
+                    var kvp = KeyValuePairProduction.Apply(root, tokens);
+                    var row = inlineTable.AddRow(kvp.Item1, kvp.Item2);
+                    if (!tokens.TryExpectAndConsume(TokenType.Comma))
+                        break;
                 }
             }
 
-            if (root.Settings.AllowNonstandard) { tokens.ConsumeAllNewlines(); }
             tokens.ExpectAndConsume(TokenType.RCurly);
             return inlineTable;
         }
