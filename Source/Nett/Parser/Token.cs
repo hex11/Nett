@@ -27,6 +27,7 @@
         Integer,
         Float,
         Bool,
+        Null,
         String,
         LiteralString,
         MultilineString,

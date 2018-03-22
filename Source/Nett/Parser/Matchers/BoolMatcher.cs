@@ -4,6 +4,7 @@
     {
         private const string F = "false";
         private const string T = "true";
+        private const string Null = "null";
 
         public static Token? TryMatch(CharBuffer cs)
         {
@@ -16,6 +17,11 @@
             {
                 cs.Consume(F.Length);
                 return new Token(TokenType.Bool, F);
+            }
+            else if (cs.TryExpect(Null))
+            {
+                cs.Consume(Null.Length);
+                return new Token(TokenType.Null, Null);
             }
             else
             {

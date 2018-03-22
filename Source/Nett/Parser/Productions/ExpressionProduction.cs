@@ -70,14 +70,12 @@
             if (!tokens.End)
             {
                 var kvp = KeyValuePairProduction.Apply(root, tokens);
-                if (kvp != null)
-                {
-                    kvp.Item2.AddComments(preComments);
-                    kvp.Item2.AddComments(CommentProduction.TryParseAppendExpressionComments(expressionToken, tokens));
 
-                    current.AddRow(kvp.Item1, kvp.Item2);
-                    return current;
-                }
+                kvp.Value.AddComments(preComments);
+                kvp.Value.AddComments(CommentProduction.TryParseAppendExpressionComments(expressionToken, tokens));
+
+                current.AddRow(kvp.Key, kvp.Value);
+                return current;
             }
 
             root.AddComments(preComments);

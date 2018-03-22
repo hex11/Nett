@@ -1,10 +1,11 @@
 ﻿namespace Nett.Parser.Productions
 {
     using System;
+    using System.Collections.Generic;
 
     internal static class KeyValuePairProduction
     {
-        public static Tuple<TomlKey, TomlObject> Apply(ITomlRoot root, TokenBuffer tokens)
+        public static KeyValuePair<TomlKey, TomlObject> Apply(ITomlRoot root, TokenBuffer tokens)
         {
             var key = KeyProduction.Apply(tokens);
 
@@ -16,17 +17,17 @@
             var inlineTableArray = InlineTableArrayProduction.TryApply(root, tokens);
             if (inlineTableArray != null)
             {
-                return new Tuple<TomlKey, TomlObject>(key, inlineTableArray);
+                return new KeyValuePair<TomlKey, TomlObject>(key, inlineTableArray);
             }
 
             var inlineTable = InlineTableProduction.TryApply(root, tokens);
             if (inlineTable != null)
             {
-                return new Tuple<TomlKey, TomlObject>(key, inlineTable);
+                return new KeyValuePair<TomlKey, TomlObject>(key, inlineTable);
             }
 
             var value = ValueProduction.Apply(root, tokens);
-            return Tuple.Create(key, value);
+            return new KeyValuePair<TomlKey, TomlObject>(key, value);
         }
     }
 }

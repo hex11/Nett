@@ -15,7 +15,7 @@
                     var preComments = CommentProduction.TryParsePreExpressionComments(tokens);
                     var exprToken = tokens.Peek();
                     var kvp = KeyValuePairProduction.Apply(root, tokens);
-                    var row = inlineTable.AddRow(kvp.Item1, kvp.Item2);
+                    var row = inlineTable.AddRow(kvp.Key, kvp.Value);
                     row.AddComments(preComments);
                     row.AddComments(CommentProduction.TryParseAppendExpressionComments(exprToken, tokens));
                     if (tokens.TryExpect(TokenType.Comma) || tokens.TryExpect(TokenType.NewLine)) {
@@ -34,7 +34,7 @@
                 while (!tokens.TryExpect(TokenType.RCurly)) {
                     var exprToken = tokens.Peek();
                     var kvp = KeyValuePairProduction.Apply(root, tokens);
-                    var row = inlineTable.AddRow(kvp.Item1, kvp.Item2);
+                    var row = inlineTable.AddRow(kvp.Key, kvp.Value);
                     if (!tokens.TryExpectAndConsume(TokenType.Comma))
                         break;
                 }

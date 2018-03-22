@@ -252,6 +252,7 @@
             else if (tokens.TryExpect(TokenType.MultilineString)) { return ParseMultilineString(root, tokens); }
             else if (tokens.TryExpect(TokenType.MultilineLiteralString)) { return ParseMultilineLiteralString(root, tokens); }
             else if (tokens.TryExpect(TokenType.Bool)) { return new TomlBool(root, bool.Parse(tokens.Consume().value)); }
+            else if (tokens.TryExpectAndConsume(TokenType.Null)) { return new TomlNull(root); }
             else if (tokens.TryExpect(TokenType.LBrac)) { return ParseTomlArray(root, tokens); }
 
             return null;
