@@ -20,19 +20,16 @@
 
             var arr = new TomlTableArray(root);
             arr.AddComments(preComments);
-            TomlTable tbl = null;
+            TomlTable tbl;
             while ((tbl = InlineTableProduction.TryApply(root, tokens)) != null) {
                 arr.Add(tbl);
                 var exprToken = tokens.Peek();
                 if (root.Settings.AllowNonstandard)
                     tokens.ConsumeAllNewlines();
                 var haveComma = tokens.TryExpectAndConsume(TokenType.Comma);
-                if (root.Settings.AllowNonstandard) {
-                    tokens.ConsumeAllNewlines();
-                    tbl.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
-                } else {
-                    tbl.AddComments(CommentProduction.TryParseAppendExpressionComments(exprToken, tokens));
-                }
+                tbl.AddComments(CommentProduction.TryParseAppendExpressionComments(exprToken, tokens));
+                tokens.ConsumeAllNewlines();
+                tbl.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
                 if (!haveComma)
                     break;
             }
