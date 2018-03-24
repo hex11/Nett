@@ -2,14 +2,19 @@
 Nett is a library that helps to read and write [TOML](https://github.com/toml-lang/toml) files in .Net.
 
 # Differences to original TOML spec
+* With `TomlSettings.Create(cfg => cfg.AllowNonstandard(true))`, for inline tables:
+  
+  + **Newlines and comments are allowed** 
+  + Commas before a newline can be omitted
+
 * 'Nett' also allows you to specify timespan values. Timespan currently isn't supported in the original
 'TOML' spec. The following TimeSpan formats are supported:
 
-+ hh:mm
-+ hh:mm:ss
-+ hh:mm:ss.ff
-+ dd.hh:mm:ss
-+ dd.hh:mm:ss.ff
+  + hh:mm
+  + hh:mm:ss
+  + hh:mm:ss.ff
+  + dd.hh:mm:ss
+  + dd.hh:mm:ss.ff
 
 # Getting Started
 
