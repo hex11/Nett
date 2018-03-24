@@ -9,12 +9,12 @@
             tokens.ExpectAndConsume(TokenType.LCurly);
             if (root.Settings.AllowNonstandard) {
                 tokens.ConsumeAllNewlines();
-                inlineTable.AddComments(CommentProduction.TryParsePreExpressionComments(tokens));
-
+                TomlObject lastVal = null;
                 while (!tokens.TryExpect(TokenType.RCurly)) {
                     var preComments = CommentProduction.TryParsePreExpressionComments(tokens);
                     var exprToken = tokens.Peek();
                     var kvp = KeyValuePairProduction.Apply(root, tokens);
+                    lastVal = kvp.Value;
                     var row = inlineTable.AddRow(kvp.Key, kvp.Value);
                     row.AddComments(preComments);
                     row.AddComments(CommentProduction.TryParseAppendExpressionComments(exprToken, tokens));
@@ -24,12 +24,14 @@
                             tokens.ConsumeAllNewlines();
                         }
                         row.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
-                        // newlines is consumed by TryParseComments()
                     } else {
                         break;
                     }
                 }
+
                 tokens.ConsumeAllNewlines();
+                var comments = CommentProduction.TryParsePreExpressionComments(tokens);
+                (lastVal ?? inlineTable as TomlObject).AddComments(comments);
             } else {
                 while (!tokens.TryExpect(TokenType.RCurly)) {
                     var exprToken = tokens.Peek();

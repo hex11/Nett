@@ -4,10 +4,10 @@
     {
         public static TomlTableArray TryApply(ITomlRoot root, TokenBuffer tokens)
         {
-            int pos = 0;
-            if (!tokens.TryExpectAt(pos++, TokenType.LBrac)) { return null; }
+            var ictx = tokens.GetImaginaryContext();
+            if (!ictx.TryExpectAndConsume(TokenType.LBrac)) { return null; }
             ictx.ConsumeAllNewlinesAndComments();
-            if (!tokens.TryExpectAt(pos++, TokenType.LCurly)) { return null; }
+            if (!ictx.TryExpectAndConsume(TokenType.LCurly)) { return null; }
 
             return Apply(root, tokens);
         }
@@ -19,9 +19,12 @@
             var preComments = CommentProduction.TryParsePreExpressionComments(tokens);
 
             var arr = new TomlTableArray(root);
-            arr.AddComments(preComments);
             TomlTable tbl;
             while ((tbl = InlineTableProduction.TryApply(root, tokens)) != null) {
+                if (preComments != null) {
+                    tbl.AddComments(preComments);
+                    preComments = null;
+                }
                 arr.Add(tbl);
                 var exprToken = tokens.Peek();
                 if (root.Settings.AllowNonstandard)
