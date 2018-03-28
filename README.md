@@ -2,14 +2,16 @@
 Nett is a library that helps to read and write [TOML](https://github.com/toml-lang/toml) files in .Net.
 
 # Differences to original TOML spec
-* 'Nett' also allows you to specify timespan values. Timespan currently isn't supported in the original
-'TOML' spec. The following TimeSpan formats are supported:
+* 'Nett' also allows you to specify duration values. Duration currently isn't supported in the original
+'TOML' spec. A Go-like duration format is supported (units have to be ordered large to small
+and can occur 1 time at most).
+Examples:
 
-+ hh:mm
-+ hh:mm:ss
-+ hh:mm:ss.ff
-+ dd.hh:mm:ss
-+ dd.hh:mm:ss.ff
++ 2_500d
++ 0.5d2h3m
++ 1d2h3m4s5ms
++ -2h30m
++ 400m2000s
 
 # Getting Started
 
@@ -66,7 +68,7 @@ This will write the following content to your hard disk:
 EnableDebug = true
 
 [Server]
-Timeout = 00:01:00
+Timeout = 1m
 
 
 [Client]
@@ -451,11 +453,15 @@ config.Clear(s => s.IdleTimeout);
 
 # Changelog
 
-**v0.8.1** --- XXXX-XX-XX
+**v0.9.0** --- 2018-03-25
 
 Nett:
 
++ **Breaking** Change: Rename TomlTimeSpan to TomlDuration
++ **Breaking** Change: TomlDuration uses Go-Like duration format as described in [Toml/#514](https://github.com/toml-lang/toml/issues/514)
 + Fix: Updating of TomlTables with TableArrayTypes [#44](https://github.com/paiden/Nett/issues/44)
++ Fix: Table rows written into wrong section [#42](https://github.com/paiden/Nett/issues/42)
++ Fix: NotImplementedException when using table arrays [#41](https://github.com/paiden/Nett/issues/41)
 
 **v0.8.0** --- 2017-09-29
 
@@ -463,7 +469,7 @@ General:
 
 + Add: .Net Standard 2.0 support
 + Add: Nett.AspNet package that integrates TOML into the Asp.Net Core configuration system
-+ Change: **Breaking** API changes creating / adding TOML objects in generic TOML
++ **Breaking** Change: API changes creating / adding TOML objects in generic TOML
 + Removed: Strong named packages
 
 Nett:
