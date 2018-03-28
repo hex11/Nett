@@ -4,6 +4,55 @@ using System.Text;
 
 namespace Nett.Parser
 {
+    internal struct StringFragment
+    {
+        public string BaseString;
+        public int Offset;
+        public int Length;
+
+        public StringFragment(string baseString, int offset, int length)
+        {
+            BaseString = baseString;
+            Offset = offset;
+            Length = length;
+        }
+
+        public char this[int index] => this.BaseString[this.Offset + index];
+
+        public static bool operator ==(StringFragment a, StringFragment b)
+        {
+            if (a.Length != b.Length)
+                return false;
+            for (int i = 0; i < a.Length; i++) {
+                if (a[i] != b[i])
+                    return false;
+            }
+            return true;
+        }
+
+        public static bool operator !=(StringFragment a, StringFragment b) => !(a == b);
+
+        public static bool operator ==(StringFragment a, string str)
+        {
+            if (str == null)
+                return false;
+            return a == new StringFragment { BaseString = str, Offset = 0, Length = str.Length };
+        }
+
+        public static bool operator !=(StringFragment a, string str) => !(a == str);
+
+        public override bool Equals(object obj)
+        {
+            if (obj is StringFragment other) {
+                return this == other;
+            } else if (obj is string str) {
+                return this == str;
+            } else {
+                return false;
+            }
+        }
+    }
+
     internal static class LexInputExtensions
     {
         public static string Consume(this LexInput input, int len)
@@ -63,13 +112,16 @@ namespace Nett.Parser
         public char Peek(int n)
             => this.input[this.index + n];
 
-        public string PeekString(int n)
+        public int EmitLength
+            => emitBuffer.Length;
+
+        public StringFragment PeekString(int n)
         {
             int len = this.index + n < this.input.Length
                 ? n
                 : this.input.Length - this.index;
 
-            return this.input.Substring(this.index, len);
+            return new StringFragment(this.input, this.index, len); //this.input.Substring(this.index, len);
         }
 
         public string PeekEmit()

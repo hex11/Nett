@@ -43,23 +43,9 @@
             var input = reader.ReadToEnd();
             var lexer = new Lexer(input);
             this.tokens = lexer.Lex();
-            this.Tokens = new TokenBuffer(this.ReadToken, lookAhead: 3);
+            this.Tokens = new TokenBuffer(this.tokens.ToArray());
 
             return this.Toml();
-        }
-
-        private Token? ReadToken()
-        {
-            if (this.tokens.Count > 0)
-            {
-                var tkn = this.tokens[0];
-                this.tokens.RemoveAt(0);
-                return tkn;
-            }
-            else
-            {
-                return default(Token?);
-            }
         }
 
         private TomlTable Toml()

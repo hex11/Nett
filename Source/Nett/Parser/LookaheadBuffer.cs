@@ -25,6 +25,15 @@
             }
         }
 
+        public LookaheadBuffer(T[] all)
+        {
+            this.buffer = all;
+            this.read = () => null;
+
+            this.ItemsAvailable = all.Length;
+            this.writeIndex += all.Length;
+        }
+
         public virtual bool End => this.EndInternal;
 
         protected bool EndInternal => this.ItemsAvailable <= 0;

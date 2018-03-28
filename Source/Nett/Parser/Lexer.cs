@@ -60,7 +60,7 @@ namespace Nett.Parser
                 bool stateConsumed = preStatePos != this.input.Position;
                 bool stateEmited = preStatetEmit != this.lexed.Count;
 
-                if (!stateConsumed && !stateEmited)
+                if (!stateConsumed & !stateEmited)
                 {
                     this.Consume();
                 }
@@ -71,14 +71,14 @@ namespace Nett.Parser
 
         private void LexLValue(char c)
         {
-            if (c == '[') { this.Accept(TokenType.LBrac, this.Consume); }
-            else if (c == ']') { this.Accept(TokenType.RBrac, this.Consume); }
-            else if (c == '}') { this.Accept(TokenType.RCurly, this.Consume); }
-            else if (c == ',') { this.Accept(TokenType.Comma, this.Consume); }
-            else if (c == '=') { this.Accept(TokenType.Assign, this.Consume); }
-            else if (c == '.') { this.Accept(TokenType.Dot, this.Consume); }
+            if (c == '[') { this.AcceptConsume(TokenType.LBrac); }
+            else if (c == ']') { this.AcceptConsume(TokenType.RBrac); }
+            else if (c == '}') { this.AcceptConsume(TokenType.RCurly); }
+            else if (c == ',') { this.AcceptConsume(TokenType.Comma); }
+            else if (c == '=') { this.AcceptConsume(TokenType.Assign); }
+            else if (c == '.') { this.AcceptConsume(TokenType.Dot); }
             else if (c == '\r') { this.SkipChar(); }
-            else if (c == '\n') { this.Accept(TokenType.NewLine, this.Consume); }
+            else if (c == '\n') { this.AcceptConsume(TokenType.NewLine); }
             else if (c == '#') { this.EnterState(this.LexComment, this.SkipChar); }
             else if (c == '\"') { this.EnterState(this.LexBasicString, label: this.SkipChar); }
             else if (c == '\'') { this.EnterState(this.LexLiteralString, label: this.SkipChar); }
@@ -104,19 +104,19 @@ namespace Nett.Parser
             else if (this.TryLexStringRValue("+nan")) { this.Accept(TokenType.Float); }
             else if (this.TryLexStringRValue("-nan")) { this.Accept(TokenType.Float); }
             else if (this.TryLexStringRValue("nan")) { this.Accept(TokenType.Float); }
-            else if (c == '=') { this.Accept(TokenType.Assign, this.Consume); }
-            else if (c == '+' || c == '-') { this.EnterState(this.LexIntNumberFirstDigit); }
+            else if (c == '=') { this.AcceptConsume(TokenType.Assign); }
+            else if (c.Is('+', '-')) { this.EnterState(this.LexIntNumberFirstDigit); }
             else if (c == '0') { this.EnterState(this.LexLeadingZeroRemainder); }
             else if (c.InRange('1', '9')) { this.EnterState(this.LexIntAll); }
             else if (c == '\"') { this.EnterState(this.LexBasicString, label: this.SkipChar); }
             else if (c == '\'') { this.EnterState(this.LexLiteralString, label: this.SkipChar); }
             else if (c == '\r') { this.Continue(); }
-            else if (c == '\n') { this.Accept(TokenType.NewLine, this.Consume); }
-            else if (c == '[') { this.Accept(TokenType.LBrac, this.Consume); }
-            else if (c == ']') { this.Accept(TokenType.RBrac, this.Consume); }
-            else if (c == '{') { this.Accept(TokenType.LCurly, this.Consume); }
-            else if (c == '}') { this.Accept(TokenType.RCurly, this.Consume); }
-            else if (c == ',') { this.Accept(TokenType.Comma, this.Consume); }
+            else if (c == '\n') { this.AcceptConsume(TokenType.NewLine); }
+            else if (c == '[') { this.AcceptConsume(TokenType.LBrac); }
+            else if (c == ']') { this.AcceptConsume(TokenType.RBrac); }
+            else if (c == '{') { this.AcceptConsume(TokenType.LCurly); }
+            else if (c == '}') { this.AcceptConsume(TokenType.RCurly); }
+            else if (c == ',') { this.AcceptConsume(TokenType.Comma); }
             else if (c == '#') { this.EnterState(this.LexComment, label: this.SkipChar); }
             else { this.Fail(); }
         }
@@ -154,7 +154,7 @@ namespace Nett.Parser
             else if (c == '_' && this.la.IsDigit()) { this.EnterState(this.LexIntNumber); }
             else if (c == '.') { this.EnterState(this.LexFloatFractionFirstDigit); }
             else if (c.IsExponent()) { this.EnterState(this.LexFloatExponentFirstDigitOrSign); }
-            else if (c == '-' && this.PeekEmit().Length == "XXXX".Length)
+            else if (c == '-' && this.EmitLength == "XXXX".Length)
             {
                 this.Consume();
                 this.LexLocalDate();
@@ -283,7 +283,7 @@ namespace Nett.Parser
         private void LexFloatExponent(char c)
         {
             if (c.IsDigit()) { this.Continue(); }
-            else if (c == '_' && this.la.IsDigit()) { this.Continue(); }
+            else if (c == '_' & this.la.IsDigit()) { this.Continue(); }
             else if (c.IsTokenSepChar()) { this.Accept(TokenType.Float); }
             else { this.Fail($"Float exponent contains unexpected '{c}'."); }
         }
@@ -301,8 +301,8 @@ namespace Nett.Parser
                 this.SkipChar();
                 this.EnterState(fc => this.LexMultilineString(fc, t, escape), label: this.SkipChar);
             }
-            else if (c == t) { this.Accept(GetStringType(t), this.SkipChar); }
-            else if (c == '\r' || c == '\n') { this.Fail(ErrNewlineInString); }
+            else if (c == t) { this.AcceptSkipChar(GetStringType(t)); }
+            else if (c.Is('\r', '\n')) { this.Fail(ErrNewlineInString); }
             else if (c == LexInput.EofChar) { this.Fail(ErrStringNotClosed); }
             else { this.EnterState(fc => this.LexSingleLineString(fc, t, escape)); }
         }
@@ -315,7 +315,7 @@ namespace Nett.Parser
                 this.SkipChar();
                 this.Accept(GetStringType(t));
             }
-            else if (c == '\r' || c == '\n') { this.Fail(ErrNewlineInString); }
+            else if (c.Is('\r', '\n')) { this.Fail(ErrNewlineInString); }
             else if (c == LexInput.EofChar) { this.Fail(ErrStringNotClosed); }
             else { this.Continue(); }
         }
@@ -358,7 +358,9 @@ namespace Nett.Parser
 
         private void LexDurationIntNumberFirstDigit(char c, int prevUnit)
         {
-            if (c.IsDigit()) { this.EnterState(sc => this.LexDurationIntNumber(sc, prevUnit)); }
+            if (c.IsDigit()) {
+                this.EnterState(sc => this.LexDurationIntNumber(sc, prevUnit));
+            }
             else if (c.IsTokenSepChar()) { this.Accept(TokenType.Duration); }
             else { this.Fail($"Duration segment needs to start with a number '0' - '9' but '{c}' was found instead."); }
         }
@@ -388,7 +390,7 @@ namespace Nett.Parser
             this.EnterState(c => this.LexDurationIntNumberFirstDigit(c, curUnit));
 
             bool Is2CharUnit()
-                => curUnit == 4 || curUnit == 5;
+                => curUnit == 4 | curUnit == 5;
         }
 
         private void EnterState(Action<char> state)
@@ -403,9 +405,15 @@ namespace Nett.Parser
         private void Continue()
             => this.Consume();
 
-        private void Accept(TokenType type, Action label)
+        private void AcceptConsume(TokenType type)
         {
-            label();
+            this.Consume();
+            this.Accept(type);
+        }
+
+        private void AcceptSkipChar(TokenType type)
+        {
+            this.SkipChar();
             this.Accept(type);
         }
 
@@ -442,6 +450,8 @@ namespace Nett.Parser
         private string PeekEmit()
             => this.input.PeekEmit();
 
+        private int EmitLength => this.input.EmitLength;
+
         private void Expect(Func<char, bool> expectation)
         {
             if (!expectation(this.Peek())) { this.Fail(); }
@@ -461,6 +471,21 @@ namespace Nett.Parser
             return true;
         }
 
+        private bool PeekSequence(char c1, char c2)
+        {
+            if (c1 != this.input.Peek(0)
+                || c2 != this.input.Peek(1)) { return false; }
+            return true;
+        }
+
+        private bool PeekSequence(char c1, char c2, char c3)
+        {
+            if (c1 != this.input.Peek(0)
+                || c2 != this.input.Peek(1)
+                || c3 != this.input.Peek(2)) { return false; }
+            return true;
+        }
+
         private void SkipChar()
         {
             this.SkipChar(1);
@@ -473,7 +498,7 @@ namespace Nett.Parser
             this.la = this.Peek(1);
         }
 
-        private string PeekSring(int len)
+        private StringFragment PeekSring(int len)
              => this.input.PeekString(len);
     }
 }
