@@ -25,6 +25,9 @@
         RCurly,
 
         Integer,
+        HexInteger,
+        OctalInteger,
+        BinaryInteger,
         Float,
         Bool,
         Null,
@@ -32,11 +35,13 @@
         LiteralString,
         MultilineString,
         MultilineLiteralString,
+        Date,
+        LocalTime,
         DateTime,
-        Timespan,
+        Duration,
     }
 
-    [DebuggerDisplay("{value}")]
+    [DebuggerDisplay("{value}:{type}")]
     internal struct Token : IEquatable<Token>
     {
 #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
@@ -44,6 +49,7 @@
         public int line;
         public TokenType type;
         public string value;
+        public string errorHint;
 #pragma warning restore SA1307 // Accessible fields must begin with upper-case letter
 
         public Token(TokenType type, string value)
@@ -52,6 +58,7 @@
             this.value = value;
             this.line = 0;
             this.col = 0;
+            this.errorHint = null;
         }
 
         public bool IsEmpty => this.value == null || this.value.Trim().Length <= 0;
@@ -59,6 +66,16 @@
         public bool IsEof => this.type == TokenType.Eof;
 
         public bool IsNewLine => this.type == TokenType.NewLine;
+
+        public static Token Unknown(string value, string hint, int line, int col)
+        {
+            return new Token(TokenType.Unknown, value)
+            {
+                errorHint = hint,
+                line = line,
+                col = col,
+            };
+        }
 
         public static Token CreateUnknownTokenFromFragment(CharBuffer cs, StringBuilder fragment)
         {
@@ -75,5 +92,8 @@
         {
             return this.type == other.type && this.value == other.value;
         }
+
+        public override string ToString()
+            => $"{this.value}:{this.type}";
     }
 }

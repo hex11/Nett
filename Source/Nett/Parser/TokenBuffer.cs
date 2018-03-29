@@ -12,6 +12,11 @@
         {
         }
 
+        public TokenBuffer(Token[] tokens)
+            : base(tokens)
+        {
+        }
+
         public override bool End => this.Peek().type == TokenType.Eof || base.End;
 
         public void ConsumeAllNewlines()

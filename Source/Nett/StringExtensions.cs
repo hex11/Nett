@@ -1,13 +1,11 @@
-﻿namespace Nett
-{
-    using System;
-    using System.Globalization;
-    using System.IO;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using Nett.Parser;
-    using Nett.Parser.Matchers;
+﻿using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+using Nett.Parser;
 
+namespace Nett
+{
     internal static class StringExtensions
     {
         private static readonly Regex EscapedSequence = new Regex(@"\\(u[\da-fA-F]{4}|U[\da-fA-F]{8}|.)", RegexOptions.Compiled);
