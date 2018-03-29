@@ -73,6 +73,7 @@ namespace Nett.Parser
         {
             if (c == '[') { this.AcceptConsume(TokenType.LBrac); }
             else if (c == ']') { this.AcceptConsume(TokenType.RBrac); }
+            else if (c == '{') { this.AcceptConsume(TokenType.LCurly); }
             else if (c == '}') { this.AcceptConsume(TokenType.RCurly); }
             else if (c == ',') { this.AcceptConsume(TokenType.Comma); }
             else if (c == '=') { this.AcceptConsume(TokenType.Assign); }

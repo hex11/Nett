@@ -20,9 +20,7 @@
                     row.AddComments(CommentProduction.TryParseAppendExpressionComments(exprToken, tokens));
                     if (tokens.TryExpect(TokenType.Comma) || tokens.TryExpect(TokenType.NewLine)) {
                         var t = tokens.Consume().type;
-                        if (t == TokenType.NewLine) {
-                            tokens.ConsumeAllNewlines();
-                        }
+                        tokens.ConsumeAllNewlines();
                         row.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
                     } else {
                         break;
@@ -30,7 +28,7 @@
                 }
 
                 tokens.ConsumeAllNewlines();
-                var comments = CommentProduction.TryParsePreExpressionComments(tokens);
+                var comments = CommentProduction.TryParseComments(tokens, CommentLocation.Append);
                 (lastVal ?? inlineTable as TomlObject).AddComments(comments);
             } else {
                 while (!tokens.TryExpect(TokenType.RCurly)) {

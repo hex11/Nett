@@ -60,6 +60,7 @@
                 if (inlineTable != null)
                 {
                     this.Tokens.ConsumeAllNewlines();
+                    inlineTable.AddComments(CommentProduction.TryParseComments(this.Tokens, CommentLocation.Append));
                     if (!this.Tokens.End)
                     {
                         throw new Exception();
