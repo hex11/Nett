@@ -27,7 +27,7 @@ namespace Nett.Parser
 
         public void Emit(TokenType t)
         {
-            if (t == TokenType.Assign) { this.rvalueStack.Push(Tuple.Create(t, this.rvalueAction)); }
+            if (t == TokenType.Assign | t == TokenType.Colon) { this.rvalueStack.Push(Tuple.Create(t, this.rvalueAction)); }
             else if (InRVal() && t == TokenType.LBrac) { this.rvalueStack.Push(Tuple.Create(t, this.rvalueAction)); }
             else if (InRVal() && t == TokenType.LCurly) { this.rvalueStack.Push(Tuple.Create(t, this.lvalueAction)); }
             else if (t == TokenType.RBrac || t == TokenType.RCurly) { this.PopScope(t); }
@@ -39,7 +39,8 @@ namespace Nett.Parser
 
         private void PopAssignmentRValueScope()
         {
-            if (this.rvalueStack.Peek().Item1 == TokenType.Assign && this.rvalueStack.Count > 1)
+            TokenType item1 = this.rvalueStack.Peek().Item1;
+            if ((item1 == TokenType.Assign | item1 == TokenType.Colon) && this.rvalueStack.Count > 1)
             {
                 this.rvalueStack.Pop();
             }

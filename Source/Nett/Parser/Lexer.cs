@@ -76,6 +76,7 @@ namespace Nett.Parser
             else if (c == '}') { this.AcceptConsume(TokenType.RCurly); }
             else if (c == ',') { this.AcceptConsume(TokenType.Comma); }
             else if (c == '=') { this.AcceptConsume(TokenType.Assign); }
+            else if (c == ':') { this.AcceptConsume(TokenType.Colon); }
             else if (c == '.') { this.AcceptConsume(TokenType.Dot); }
             else if (c == '\r') { this.SkipChar(); }
             else if (c == '\n') { this.AcceptConsume(TokenType.NewLine); }
@@ -106,6 +107,7 @@ namespace Nett.Parser
             else if (this.TryLexStringRValue("-nan")) { this.Accept(TokenType.Float); }
             else if (this.TryLexStringRValue("nan")) { this.Accept(TokenType.Float); }
             else if (c == '=') { this.AcceptConsume(TokenType.Assign); }
+            else if (c == ':') { this.AcceptConsume(TokenType.Colon); }
             else if (c.Is('+', '-')) { this.EnterState(this.LexIntNumberFirstDigit); }
             else if (c == '0') { this.EnterState(this.LexLeadingZeroRemainder); }
             else if (c.InRange('1', '9')) { this.EnterState(this.LexIntAll); }

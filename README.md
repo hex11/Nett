@@ -2,10 +2,13 @@
 Nett is a library that helps to read and write [TOML](https://github.com/toml-lang/toml) files in .Net.
 
 # Differences to original TOML spec
-* With `TomlSettings.Create(cfg => cfg.AllowNonstandard(true))`, for inline tables:
-  
-  + **Newlines and comments are allowed** 
-  + Commas before a newline can be omitted
+* With `TomlSettings.Create(cfg => cfg.AllowNonstandard(true))`
+
+  * **`=` can be replaced by `:`**
+
+  * For inline tables:
+    + **Newlines and comments are allowed** 
+    + Commas before a newline can be omitted
 
 * 'Nett' also allows you to specify duration values. Duration currently isn't supported in the original
 'TOML' spec. A Go-like duration format is supported (units have to be ordered large to small

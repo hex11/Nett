@@ -23,7 +23,7 @@
             else if (required)
             {
                 var t = tokens.Peek();
-                if (t.type == TokenType.Assign || t.type == TokenType.Colon)
+                if (t.type == TokenType.Assign | t.type == TokenType.Colon)
                 {
                     throw Parser.CreateParseError(t, "Key is missing.");
                 }
