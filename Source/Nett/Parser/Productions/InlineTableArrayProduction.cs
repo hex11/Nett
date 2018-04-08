@@ -38,7 +38,6 @@
             }
 
             tokens.ExpectAndConsume(TokenType.RBrac);
-            arr.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
 
             return arr;
         }

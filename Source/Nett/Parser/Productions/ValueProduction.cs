@@ -152,7 +152,6 @@ namespace Nett.Parser.Productions
                     tokens.Consume();
                     a = new TomlArray(root);
                     a.AddComments(prep);
-                    a.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
                     return a;
                 }
                 else
@@ -193,8 +192,6 @@ namespace Nett.Parser.Productions
                 }
 
                 a.Last().AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
-                tokens.ExpectAndConsume(TokenType.RBrac);
-                a.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
 
                 TomlValue ParseArrayValue()
                 {
@@ -212,6 +209,8 @@ namespace Nett.Parser.Productions
                     return value;
                 }
             }
+
+            tokens.ExpectAndConsume(TokenType.RBrac);
 
             return a;
         }

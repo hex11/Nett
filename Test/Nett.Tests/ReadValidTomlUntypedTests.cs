@@ -252,10 +252,10 @@ namespace Nett.Tests
             Assert.Equal(42, ((TomlTable)read["group"]).Get<int[]>("more")[0]);
             Assert.Equal(1, ((TomlTable)read["group"]).Get<TomlTableArray>("questions").Count);
             Assert.Equal(42, ((TomlTable)read["group"]).Get<TomlTableArray>("questions")[0]["answer"].Get<int>());
-            Assert.Equal(" Hopefully not.", ((TomlTable)read["group"]).Get<TomlArray>("more").Comments.First().Text);
+            Assert.Equal(" Hopefully not.", ((TomlTable)read["group"]).Get<TomlArray>("more").Comments.First(x => x.Location == CommentLocation.Append).Text);
             Assert.Single(((TomlTable)read["group"]).Get<TomlArray>("emptyArr1").Comments);
             Assert.Equal(3, ((TomlTable)read["group"]).Get<TomlArray>("emptyArr2").Comments.Count());
-            Assert.Equal(" End", ((TomlTable)read["group"]).Get<TomlTableArray>("questions").Comments.First().Text);
+            Assert.Equal(" End", ((TomlTable)read["group"]).Get<TomlTableArray>("questions").Comments.First(x => x.Location == CommentLocation.Append).Text);
         }
 
         [Fact]
