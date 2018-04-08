@@ -9,6 +9,23 @@ Nett is a library that helps to read and write [TOML](https://github.com/toml-la
   * For inline tables:
     + **Newlines and comments are allowed** 
     + Commas before a newline can be omitted
+    
+  * Example:
+    ```
+    [global]
+    users = [
+        {
+            name = 'user1'
+            group = 'foo'
+            passwd = '123'
+        },
+        {
+            "name": "user2",
+            "group": "bar",
+            "passwd": "456"
+        } # Yes, you can even paste a JSON here. XD
+    ]
+    ```
 
 * 'Nett' also allows you to specify duration values. Duration currently isn't supported in the original
 'TOML' spec. A Go-like duration format is supported (units have to be ordered large to small
