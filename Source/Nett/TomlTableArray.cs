@@ -63,6 +63,11 @@
                 return a;
             }
 
+            if (TryConverters(t, out var obj))
+            {
+                return obj;
+            }
+
             if (!ListType.IsAssignableFrom(t))
             {
                 throw new InvalidOperationException(string.Format("Cannot convert TOML array to '{0}'.", t.FullName));

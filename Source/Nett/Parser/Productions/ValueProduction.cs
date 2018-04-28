@@ -139,75 +139,76 @@ namespace Nett.Parser.Productions
             TomlArray a;
             var prep = CommentProduction.TryParseComments(tokens, CommentLocation.Prepend).ToList();
             tokens.ExpectAndConsume(TokenType.LBrac);
-            using (tokens.UseIgnoreNewlinesContext())
+            tokens.ConsumeAllNewlines();
+
+            prep.AddRange(CommentProduction.TryParseComments(tokens, CommentLocation.Prepend));
+            if (tokens.TryExpect(TokenType.RBrac))
             {
-                prep.AddRange(CommentProduction.TryParseComments(tokens, CommentLocation.Prepend));
-                if (tokens.TryExpect(TokenType.RBrac))
-                {
-                    // Empty array handled inside this if, else part can assume the array has values
-                    // Comments in an empty array are moved before the array at the moment.
-                    // There currently does not exist a comment  location that will allow to write this comments correctly
-                    // => Parse the real items correctly and do not create a parse error, but the comment will get lost
-                    // on the next write.
-                    tokens.Consume();
-                    a = new TomlArray(root);
-                    a.AddComments(prep);
-                    return a;
-                }
-                else
-                {
-                    List<TomlValue> values = new List<TomlValue>();
+                // Empty array handled inside this if, else part can assume the array has values
+                // Comments in an empty array are moved before the array at the moment.
+                // There currently does not exist a comment  location that will allow to write this comments correctly
+                // => Parse the real items correctly and do not create a parse error, but the comment will get lost
+                // on the next write.
+                tokens.Consume();
+                a = new TomlArray(root);
+                a.AddComments(prep);
+                return a;
+            }
+            else
+            {
+                List<TomlValue> values = new List<TomlValue>();
 
-                    // Parse first !required! array value
-                    var v = ParseArrayValue();
-                    v.AddComments(prep);
-                    values.Add(v);
+                // Parse first !required! array value
+                var v = ParseArrayValue();
+                v.AddComments(prep);
+                values.Add(v);
 
-                    while (!tokens.TryExpect(TokenType.RBrac))
+                while (!tokens.TryExpect(TokenType.RBrac))
+                {
+                    if (!tokens.TryExpectAndConsume(TokenType.Comma))
                     {
-                        if (!tokens.TryExpectAndConsume(TokenType.Comma))
-                        {
-                            throw Parser.CreateParseError(tokens.Peek(), "Array not closed.");
-                        }
-
-                        // This comment is misplaced as we simply append it to the last value, but it does not belong to it
-                        // Comments processing needs some tweaking/redesign in the future.
-                        v.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
-
-                        if (!tokens.TryExpect(TokenType.RBrac))
-                        {
-                            var et = tokens.Peek();
-                            v = ParseArrayValue();
-
-                            if (v.GetType() != values[0].GetType())
-                            {
-                                throw Parser.CreateParseError(et, $"Expected array value of type '{values[0].ReadableTypeName}' but value of type '{v.ReadableTypeName}' was found.");
-                            }
-
-                            values.Add(v);
-                        }
+                        throw Parser.CreateParseError(tokens.Peek(), "Array not closed.");
                     }
 
-                    a = new TomlArray(root, values.ToArray());
-                }
+                    tokens.ConsumeAllNewlines();
 
-                a.Last().AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
+                    // This comment is misplaced as we simply append it to the last value, but it does not belong to it
+                    // Comments processing needs some tweaking/redesign in the future.
+                    v.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
 
-                TomlValue ParseArrayValue()
-                {
-                    var prepComments = CommentProduction.TryParseComments(tokens, CommentLocation.Prepend);
-                    var valueParseErrorPos = tokens.Peek();
-                    var value = ParseTomlValue(root, tokens);
-                    if (value == null)
+                    if (!tokens.TryExpect(TokenType.RBrac))
                     {
-                        throw Parser.CreateParseError(valueParseErrorPos, $"Array value is missing.");
+                        var et = tokens.Peek();
+                        v = ParseArrayValue();
+
+                        if (v.GetType() != values[0].GetType())
+                        {
+                            throw Parser.CreateParseError(et, $"Expected array value of type '{values[0].ReadableTypeName}' but value of type '{v.ReadableTypeName}' was found.");
+                        }
+
+                        values.Add(v);
                     }
-
-                    value.AddComments(prepComments);
-                    value.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
-
-                    return value;
                 }
+
+                a = new TomlArray(root, values.ToArray());
+            }
+
+            a.Last().AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
+
+            TomlValue ParseArrayValue()
+            {
+                var prepComments = CommentProduction.TryParseComments(tokens, CommentLocation.Prepend);
+                var valueParseErrorPos = tokens.Peek();
+                var value = ParseTomlValue(root, tokens);
+                if (value == null)
+                {
+                    throw Parser.CreateParseError(valueParseErrorPos, $"Array value is missing.");
+                }
+
+                value.AddComments(prepComments);
+                value.AddComments(CommentProduction.TryParseComments(tokens, CommentLocation.Append));
+
+                return value;
             }
 
             tokens.ExpectAndConsume(TokenType.RBrac);

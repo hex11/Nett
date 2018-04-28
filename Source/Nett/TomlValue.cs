@@ -65,11 +65,11 @@
         public override object Get(Type t)
         {
             if (this.GetType() == t) { return this; }
+            
 
-            var converter = this.Root.Settings.TryGetConverter(this.GetType(), t);
-            if (converter != null)
+            if (TryConverters(t, out var obj))
             {
-                return converter.Convert(this.Root, this, t);
+                return obj;
             }
             else
             {

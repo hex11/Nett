@@ -143,6 +143,17 @@
 
             return new TomlArray(root);
         }
+
+        protected bool TryConverters(Type t, out object obj)
+        {
+            var converter = this.Root.Settings.TryGetConverter(this.GetType(), t);
+            if (converter != null) {
+                obj = converter.Convert(this.Root, this, t);
+                return true;
+            }
+            obj = null;
+            return false;
+        }
     }
 
     internal static class TomlObjecTypeExtensions
