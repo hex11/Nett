@@ -261,6 +261,41 @@ third2 = ""b""".Trim());
             ta[1].Get<TestTable>().timestamp.Should().Be(DateTimeOffset.MinValue);
         }
 
+        [Fact]
+        public void VerifyIssue51_InlineTableSerializedInWrongParentTable_IsFixed()
+        {
+            // Arrange
+            var table = Toml.Create();
+            var root = table.Add("Root", new object(), TomlTable.TableTypes.Default);
+            root.Add("A", new object(), TomlTable.TableTypes.Default);
+            root.Add("B", new object(), TomlTable.TableTypes.Inline);
+
+            // Act
+            var ser = Toml.WriteString(table);
+
+            // Assert
+            ser.ShouldBeSemanticallyEquivalentTo(@"
+[Root]
+B = {  }
+
+[Root.A]
+");
+        }
+
+        [Fact]
+        public void VerifyIssue53_EmptyInlineTableFailsToBeParsed_IsFixed()
+        {
+            // Arrange
+            const string Tml = @"
+[Root]
+A = {  }
+";
+            Action action = () => Toml.ReadString(Tml);
+
+            // Assert
+            action.ShouldNotThrow();
+        }
+
         public class TestTable
         {
             public string label { get; set; }
